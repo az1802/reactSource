@@ -183,7 +183,11 @@ export function cloneUpdateQueue<State>(
   }
 }
 
-// 创建一个更新对象
+/**
+ * 创建一个更新对象,next指向自身
+ * @param {*} expirationTime 过期时间
+ * @param {*} suspenseConfig 
+ */
 export function createUpdate(
   expirationTime: ExpirationTime,
   suspenseConfig: null | SuspenseConfig,

@@ -135,7 +135,13 @@ function FiberRootNode(containerInfo, tag, hydrate) {
   }
 }
 
-// 对应的DOM结构或者react实例对象
+/**
+ * 对应的DOM结构或者react实例对象
+ * @param {*} containerInfo 
+ * @param {*} tag 
+ * @param {*} hydrate 
+ * @param {*} hydrationCallbacks 
+ */
 export function createFiberRoot(
   containerInfo: any,
   tag: RootTag,

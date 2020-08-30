@@ -91,7 +91,8 @@ if (__DEV__) {
     if (callback === null || typeof callback === 'function') {
       return;
     }
-    const key = `${callerName}_${(callback: any)}`;
+    //   const key = `${callerName}_${(callback: any)}`;
+      const key = `${callerName}_${callback}`;//vscode后续代码显示不正常 这里将类型的判断过滤掉放在``模板字符串内会出现代码格式显示问题
     if (!didWarnOnInvalidCallback.has(key)) {
       didWarnOnInvalidCallback.add(key);
       console.error(
@@ -181,7 +182,7 @@ export function applyDerivedStateFromProps(
 }
 
 
-// class类型组件的更新对象 
+// 构造class类型组件的实例对象并返回
 const classComponentUpdater = {
   isMounted,
   enqueueSetState(inst, payload, callback) {
@@ -554,7 +555,7 @@ function constructClassInstance(
   let context = emptyContextObject;
   const contextType = ctor.contextType;
 
-  if (__DEV__) {
+  if (__DEV__) { //处理contextType
     if ('contextType' in ctor) {
       let isValid =
         // Allow null for conditional declaration
@@ -735,6 +736,7 @@ function callComponentWillMount(workInProgress, instance) {
 
   stopPhaseTimer();
 
+  //winllMount钩子函数执行的过程中发生了对state的改变,会将更新压入到更新队列 
   if (oldState !== instance.state) {
     if (__DEV__) {
       console.error(

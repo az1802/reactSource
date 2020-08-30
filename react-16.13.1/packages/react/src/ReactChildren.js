@@ -95,7 +95,7 @@ function releaseTraverseContext(traverseContext) {
 }
 
 /**
- * 遍历子节点返回子节点的数量
+ * 递归遍历子节点返回子节点的数量,包含后代子节点,同时对每一个子节点执行callback方法
  * @param {?*} children Children tree container.
  * @param {!string} nameSoFar Name of the key path so far.
  * @param {!function} callback Callback to invoke with each child found.
@@ -137,7 +137,8 @@ function traverseAllChildrenImpl(
   }
 
 
-  if (invokeCallback) {
+    if (invokeCallback) {
+    //对每个子节点使用callback进行处理
     callback(
       traverseContext,
       children,
@@ -332,7 +333,14 @@ function mapSingleChildIntoContext(bookKeeping, child, childKey) {
   }
 }
 
-// children转换为数组形式
+/**
+ * children转换为数组形式
+ * @param {*} children 需要转换的ReactElement元素数组
+ * @param {*} array 存放结果
+ * @param {*} prefix 
+ * @param {*} func 转换过程中使用func进行处理
+ * @param {*} context 
+ */
 function mapIntoWithKeyPrefixInternal(children, array, prefix, func, context) {
   let escapedPrefix = '';
   if (prefix != null) {
@@ -344,7 +352,8 @@ function mapIntoWithKeyPrefixInternal(children, array, prefix, func, context) {
     func,
     context,
   );
-  traverseAllChildren(children, mapSingleChildIntoContext, traverseContext);
+    traverseAllChildren(children, mapSingleChildIntoContext, traverseContext);
+  //释放context对象到context池中,辩护后续复用 
   releaseTraverseContext(traverseContext);
 }
 

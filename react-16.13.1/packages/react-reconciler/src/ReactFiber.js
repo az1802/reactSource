@@ -362,7 +362,13 @@ function FiberNode(
 //    is faster.
 // 5) It should be easy to port this to a C struct and keep a C implementation
 //    compatible.
-//  创建fiber节点
+/**
+ * 创建fiber节点
+ * @param {*} tag fiber节点类型
+ * @param {*} pendingProps 节点上的属性
+ * @param {*} key key属性
+ * @param {*} mode fiber节点的模式 current bloack legcy
+ */
 const createFiber = function(
   tag: WorkTag,
   pendingProps: mixed,

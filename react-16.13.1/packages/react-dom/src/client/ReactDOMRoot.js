@@ -54,7 +54,12 @@ function ReactDOMRoot(container: Container, options: void | RootOptions) {
   this._internalRoot = createRootImpl(container, ConcurrentRoot, options);
 }
 
-// 模式可以自定义
+/**
+ * 
+ * @param {*} container dom容器
+ * @param {*} tag 表示渲染模式 LegacyRoot BlockRoot CurrentRoot 
+ * @param {*} options 
+ */
 function ReactDOMBlockingRoot(
   container: Container,
   tag: RootTag,
@@ -113,7 +118,12 @@ ReactDOMRoot.prototype.unmount = ReactDOMBlockingRoot.prototype.unmount = functi
   });
 };
 
-// 创建fiber根节点并返回
+/**
+ * 创建fiber root节点并返回
+ * @param {*} container dom容器节点
+ * @param {*} tag fiber root节点的模式 LegacyRoot BlockRoot  ConcurrentRoot
+ * @param {*} options 
+ */
 function createRootImpl(
   container: Container,
   tag: RootTag,
@@ -136,6 +146,11 @@ function createRootImpl(
   return root;
 }
 
+/**
+ * 创建并发模式的fiberRoot节点
+ * @param {*} container 
+ * @param {*} options 
+ */
 export function createRoot(
   container: Container,
   options?: RootOptions,
@@ -160,14 +175,21 @@ export function createBlockingRoot(
   return new ReactDOMBlockingRoot(container, BlockingRoot, options);
 }
 
-// 即将废弃的模式创建根节点
+/**
+ * 创建fiberRooot节点返回,默认是同步模式
+ * @param {*} container  dom容器
+ * @param {*} options 
+ */
 export function createLegacyRoot(
   container: Container,
   options?: RootOptions,
 ): RootType {
   return new ReactDOMBlockingRoot(container, LegacyRoot, options);
 }
-// DOM容器节点是否合法
+/**
+ * DOM容器节点是否合法
+ * @param {*} node 
+ */
 export function isValidContainer(node: mixed): boolean {
   return !!(
     node &&

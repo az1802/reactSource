@@ -13,7 +13,7 @@ import ReactCurrentOwner from './ReactCurrentOwner';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-// 预留属性的配置
+// 预留属性的配置,key,ref会在props中单独提取出来
 const RESERVED_PROPS = {
   key: true,
   ref: true,
@@ -53,7 +53,11 @@ function hasValidKey(config) {
   }
   return config.key !== undefined;
 }
-
+/**
+ * key作为特殊属性是无法被组件使用的,需要传递值可以使用另外的属性
+ * @param {*} props 
+ * @param {*} displayName 组件名称
+ */
 function defineKeyPropWarningGetter(props, displayName) {
   const warnAboutAccessingKey = function() {
     if (__DEV__) {

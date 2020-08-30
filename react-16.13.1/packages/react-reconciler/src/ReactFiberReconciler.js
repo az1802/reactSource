@@ -220,7 +220,13 @@ function findHostInstanceWithWarning(
   return findHostInstance(component);
 }
 
-// 返回fiber root根节点
+/**
+ * 返回fiber root根节点
+ * @param {*} containerInfo dom容器
+ * @param {*} tag 根节点的模式
+ * @param {*} hydrate 
+ * @param {*} hydrationCallbacks 
+ */
 export function createContainer(
   containerInfo: Container,
   tag: RootTag,
@@ -230,7 +236,14 @@ export function createContainer(
   return createFiberRoot(containerInfo, tag, hydrate, hydrationCallbacks);
 }
 
-// 更新ReactElement树
+/**
+ * 根据不同的mode计算出不同的过期时间,创建一个update对象压入到需要更新的fiber节点queue中。
+ * 使用scheduleWork对fiber节点进行调度从而达到绑定和更新的过程
+ * @param {*} element reactElement树
+ * @param {*} container fiberRoot根节点
+ * @param {*} parentComponent 父组件
+ * @param {*} callback 
+ */
 export function updateContainer(
   element: ReactNodeList,
   container: OpaqueRoot,
@@ -251,9 +264,8 @@ export function updateContainer(
       warnIfNotScopedWithMatchingAct(current);
     }
   }
-  const suspenseConfig = requestCurrentSuspenseConfig();
-  // 计算一个过期时间
-  const expirationTime = computeExpirationForFiber(
+  const suspenseConfig = requestCurrentSuspenseConfig(); //根据不同的模式获取不同的Suspense配置信息
+  const expirationTime = computeExpirationForFiber(  // 计算一个过期时间
     currentTime,
     current,
     suspenseConfig,
@@ -284,7 +296,7 @@ export function updateContainer(
     }
   }
 
-  // 创建一个更新队列
+  // 创建一个更新对象
   const update = createUpdate(expirationTime, suspenseConfig);
   // Caution: React DevTools currently depends on this property
   // being called "element".
@@ -305,7 +317,7 @@ export function updateContainer(
   }
 
   enqueueUpdate(current, update); // 将更新对象压入到fiber节点的更新队列中
-  scheduleWork(current, expirationTime);
+  scheduleWork(current, expirationTime);//开始当前fiber节点的调度
 
   return expirationTime;
 }

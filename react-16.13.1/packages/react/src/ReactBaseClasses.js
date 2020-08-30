@@ -49,6 +49,7 @@ Component.prototype.isReactComponent = {};
  * shouldComponentUpdate, and this new state, props, and context will not yet be
  * assigned to this.
  *
+ * 
  * @param {object|function} partialState Next partial state or function to
  *        produce next partial state to be merged with current state.
  * @param {?function} callback Called after state is updated.
@@ -135,7 +136,7 @@ function PureComponent(props, context, updater) {
   this.refs = emptyObject;
   this.updater = updater || ReactNoopUpdateQueue;
 }
-
+// 利用原型链的技术新建了一个原型对象并未直接进行复用
 const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
 pureComponentPrototype.constructor = PureComponent;
 // Avoid an extra prototype jump for these methods.

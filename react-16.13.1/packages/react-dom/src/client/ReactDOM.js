@@ -134,6 +134,12 @@ setBatchingImplementation(
   batchedEventUpdates,
 );
 
+/**
+ * 将chilren节点渲染到 container dom节点中的方式，该节点存在于 DOM 组件的层次结构之外。
+ * @param {*}} children 
+ * @param {*} container 
+ * @param {*} key 
+ */
 function createPortal(
   children: ReactNodeList,
   container: Container,
@@ -154,6 +160,13 @@ function scheduleHydration(target: Node) {
   }
 }
 
+/**
+ * 将chilren组件渲染到dom容器中
+ * @param {*} parentComponent 
+ * @param {*} element 
+ * @param {*} containerNode 
+ * @param {*} callback 
+ */
 function renderSubtreeIntoContainer(
   parentComponent: React$Component < any, any > ,
   element: React$Element < any > ,

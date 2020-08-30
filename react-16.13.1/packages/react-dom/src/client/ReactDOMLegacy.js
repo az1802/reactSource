@@ -125,7 +125,11 @@ function shouldHydrateDueToLegacyHeuristic(container) {
   );
 }
 
-// 根据DOM节点创建fiber root
+/**
+ * 根据DOM节点创建fiber root。非hydrate模式会逐步移除dom容器内的子节点
+ * @param {*} container dom容器
+ * @param {*} forceHydrate 
+ */
 function legacyCreateRootFromDOMContainer(
   container: Container,
   forceHydrate: boolean,
@@ -191,7 +195,14 @@ function warnOnInvalidCallback(callback: mixed, callerName: string): void {
   }
 }
 
-// children 表示ReactElement树  parentComponent null表示根节点  container表示DOM节点
+/**
+ * 将chilren树渲染到dom容器中
+ * @param {*} parentComponent 为null表示根节点
+ * @param {*} children 表示ReactElement树
+ * @param {*} container  container表示DOM节点
+ * @param {*} forceHydrate 
+ * @param {*} callback 
+ */
 function legacyRenderSubtreeIntoContainer(
   parentComponent: ? React$Component < any, any > ,
   children : ReactNodeList,
@@ -210,7 +221,7 @@ function legacyRenderSubtreeIntoContainer(
   let root: RootType = (container._reactRootContainer: any);
   let fiberRoot;
   if (!root) {
-    // Initial mount 首次绑定
+    // Initial mount 首次绑定 创建fiberRoot节点
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
@@ -311,7 +322,12 @@ export function hydrate(
   );
 }
 
-// reactElement 树渲染到DOM容器中的入口
+/**
+ * reactElement 树渲染到DOM容器中的入口
+ * @param {*} element reactElement元素
+ * @param {*} container dom容器
+ * @param {*} callback 渲染完成之后的话回调函数,未来版本可能不会返回ReactComponet实例对象,可以在回调函数中进行使用
+ */
 export function render(
   element: React$Element < any > ,
   container: Container,
@@ -335,7 +351,6 @@ export function render(
       );
     }
   }
-  // 
   return legacyRenderSubtreeIntoContainer(
     null,
     element,

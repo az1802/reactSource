@@ -61,6 +61,7 @@ function stopProfilerTimerIfRunning(fiber: Fiber): void {
   profilerStartTime = -1;
 }
 
+// fiber节点beginWork执行完,获取时间差
 function stopProfilerTimerIfRunningAndRecordDelta(
   fiber: Fiber,
   overrideBaseTime: boolean,

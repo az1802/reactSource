@@ -11,6 +11,11 @@ import {REACT_PROVIDER_TYPE, REACT_CONTEXT_TYPE} from 'shared/ReactSymbols';
 
 import type {ReactContext} from 'shared/ReactTypes';
 
+/**
+ * 返回一个context对象包含Provider Consumer组件配置信息
+ * @param {*} defaultValue 默认值
+ * @param {*} calculateChangedBits  calculateChangedBits判断是否进行更新的一个函数
+ */
 export function createContext<T>(
   defaultValue: T,
   calculateChangedBits: ?(a: T, b: T) => number,

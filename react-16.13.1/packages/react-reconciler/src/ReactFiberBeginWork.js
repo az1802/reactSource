@@ -837,7 +837,7 @@ function updateClassComponent(
       workInProgress.effectTag |= Placement;
     }
     // In the initial pass we might need to construct the instance.
-    // 根据属性运行构造函数
+    // 运行class类组件的构造函数
     constructClassInstance(workInProgress, Component, nextProps);
     // 绑定组件实例对象 并会执行willMount等生命周期方法(没有复用表明第一次渲染改组件实例)
     mountClassInstance(
@@ -895,7 +895,7 @@ function updateClassComponent(
 
 
 // classComponent处理完毕 返回下一个待处理的fiber节点
-function finishClassComponent(
+function finishClassComponent( 
   current: Fiber | null,
   workInProgress: Fiber,
   Component: any,
@@ -2969,7 +2969,6 @@ function beginWork(
       // 属性不一致 或者 订阅的context的发生变化表明组件存在更新
       didReceiveUpdate = true;
     } else if (updateExpirationTime < renderExpirationTime) {
-      //TODO:  没有待处理的属性
       didReceiveUpdate = false;
       // This fiber does not have any pending work. Bailout without entering
       // the begin phase. There's still some bookkeeping we that needs to be done

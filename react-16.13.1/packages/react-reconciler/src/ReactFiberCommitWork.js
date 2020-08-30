@@ -1091,14 +1091,18 @@ function getHostSibling(fiber: Fiber): ?Instance {
   }
 }
 
-// fiber节点进行替换的commit行为
+/**
+ * fiber节点进行替换的commit行为
+ * 根节点会获取dom节点
+ * @param {*} finishedWork 
+ */
 function commitPlacement(finishedWork: Fiber): void {
   if (!supportsMutation) {
     return;
   }
 
   // Recursively insert all host nodes into the parent.
-  // 获取父级fiber节点
+  // 获取挂载到的dom节点进行插入操作
   const parentFiber = getHostParentFiber(finishedWork);
 
   // Note: these two variables *must* always be updated together.
@@ -1139,7 +1143,7 @@ function commitPlacement(finishedWork: Fiber): void {
     parentFiber.effectTag &= ~ContentReset;
   }
 
-  const before = getHostSibling(finishedWork);
+  const before = getHostSibling(finishedWork);//获取插入点的锚点节点
   // We only have the top Fiber that was inserted but we need to recurse down its
   // children to find all the terminal nodes.
   if (isContainer) {

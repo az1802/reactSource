@@ -295,7 +295,9 @@ let spawnedWorkDuringRender: null | Array<ExpirationTime> = null;
 // receive the same expiration time. Otherwise we get tearing.
 let currentEventTime: ExpirationTime = NoWork;
 
-// 获取当前的时间
+/**
+ * 获取当前的更新时间,根据performance.now获取一个事件再转换为一个值
+ */
 export function requestCurrentTimeForUpdate() {
   if ((executionContext & (RenderContext | CommitContext)) !== NoContext) {
     // We're inside React, so it's fine to read the actual time.
@@ -318,7 +320,12 @@ export function getCurrentTime() {
   return msToExpirationTime(now());
 }
 
-// 根据fiber节点的mode计算过期时间
+/**
+ * 根据fiber节点的mode计算过期时间.
+ * block模式返回sync
+ * legcy模式  Sync Batched
+ * current模式  最为复杂
+ */
 export function computeExpirationForFiber(
   currentTime: ExpirationTime,
   fiber: Fiber,
@@ -384,24 +391,25 @@ export function computeExpirationForFiber(
 
   return expirationTime;
 }
-
-// 更新fiber节点
+/**
+ * 根据expirationTime对fiber节点进行更新.
+ */
 export function scheduleUpdateOnFiber(
   fiber: Fiber,
   expirationTime: ExpirationTime,
 ) {
-  checkForNestedUpdates(); //避免嵌套更新
+  checkForNestedUpdates(); //通过nestedUpdateCount,nestedPassiveUpdateCount计数.避免嵌套更新
   warnAboutRenderPhaseUpdatesInDEV(fiber);//在render阶段出现的更新
 
-  // 向上逐层更新父节点的expirationTime值
+  // 向上逐层更新父节点的expirationTime值,并获取fiberRoot节点
   const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime);
   if (root === null) {
-    // root为null可能是组件已经解绑了
+    // root为null可能根组件已经解绑了
     warnAboutUpdateOnUnmountedFiberInDEV(fiber);
     return;
   }
  
-  // TODO 检查是否中断 
+  //需要更新的fiber节点的过期时间大于正在渲染的fiber节点的过期时间即优先级更高则中断当前render过程
   checkForInterruption(fiber, expirationTime);
   recordScheduleUpdate();  //记录调度更新
 
@@ -411,11 +419,11 @@ export function scheduleUpdateOnFiber(
 
   if (expirationTime === Sync) { //同步的更新
     if (
-      // Check if we're inside unbatchedUpdates  是否在非批量更新中
+      // Check if we're inside unbatchedUpdates  
       (executionContext & LegacyUnbatchedContext) !== NoContext &&
-      // Check if we're not already rendering 是否正在渲染中
+      // Check if we're not already rendering 
       (executionContext & (RenderContext | CommitContext)) === NoContext
-    ) {
+    ) {//批量更新中且不在render 和 commit阶段
       // Register pending interactions on the root to avoid losing traced interaction data.
       // 注册挂起的交互避免丢失跟踪的数据
       schedulePendingInteractions(root, expirationTime);
@@ -1224,7 +1232,7 @@ export function discreteUpdates<A, B, C, D, R>(
 // 非批量更新 对executionContext进行处理,在计算ExpirationTime的时候会根据执行上下文来决定过期时间的计算方式
 export function unbatchedUpdates<A, R>(fn: (a: A) => R, a: A): R {
   const prevExecutionContext = executionContext;
-  executionContext &= ~BatchedContext;
+  executionContext &= ~BatchedContext;//移除批量更新的标识符添加非批量更新标识符
   executionContext |= LegacyUnbatchedContext;
   // 执行fn操作
   try {
@@ -1273,7 +1281,7 @@ export function flushControlled(fn: () => mixed): void {
   }
 }
 
-// 准备一个新的栈处理任务 即workInProgress
+// 准备一个新的栈处理任务 即workInProgress以及相关的状态
 function prepareFreshStack(root, expirationTime) {
   root.finishedWork = null;
   root.finishedExpirationTime = NoWork;
@@ -1287,7 +1295,7 @@ function prepareFreshStack(root, expirationTime) {
     cancelTimeout(timeoutHandle);
   }
 
-  // TODO 已经有任务正在更新了,向上一层一层的解除已经执行的fiber父级节点
+  // TODO 已经有任务正在更新了,向上一层一层的解除已经执行的fiber父级节点进行还原
   if (workInProgress !== null) {
     let interruptedWork = workInProgress.return;
     while (interruptedWork !== null) {
@@ -1527,7 +1535,7 @@ function workLoopConcurrent() {
   }
 }
 
-// 根据fiber节点执行工作单元 
+// 处理fiber节点单元
 function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
   // The current, flushed, state of this fiber is the alternate. Ideally
   // nothing should rely on this, but relying on it here means that we don't
@@ -1540,10 +1548,9 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
 
   let next;
   if (enableProfilerTimer && (unitOfWork.mode & ProfileMode) !== NoMode) {
-    startProfilerTimer(unitOfWork);
+    startProfilerTimer(unitOfWork);//性能模式下的计时
     next = beginWork(current, unitOfWork, renderExpirationTime);
-    // 停止当前任务的记录分析
-    stopProfilerTimerIfRunningAndRecordDelta(unitOfWork, true);
+    stopProfilerTimerIfRunningAndRecordDelta(unitOfWork, true);// 停止当前任务的记录分析
   } else {
     // 对unitOfWorkfiber节点进行调度 current为原始fiber节点
     next = beginWork(current, unitOfWork, renderExpirationTime);
@@ -1561,7 +1568,10 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
   return next;
 }
 
-// 标记fiber节点为完成状态
+/**
+ * 标记fiber节点为完成状态,普通元素会渲染dom节点并且关联到fiber节点上
+ * @param {*} unitOfWork 
+ */
 function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
   // Attempt to complete the current unit of work, then move to the next
   // sibling. If there are no more siblings, return to the parent fiber.
@@ -1607,7 +1617,7 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
         // Do not append effects to parents if a sibling failed to complete
         (returnFiber.effectTag & Incomplete) === NoEffect
       ) {
-        // 将子节点的effect的链条同时挂载到父节点上
+        // 将子节点的effect的链条同时挂载到父节点上,这样最终整个effect链都在根节点上
         // Append all the effects of the subtree and this fiber onto the effect
         // list of the parent. The completion order of the children affects the
         // side-effect order.
@@ -2184,7 +2194,7 @@ function commitMutationEffects(root: FiberRoot, renderPriorityLevel) {
     // updates, and deletions. To avoid needing to add a case for every possible 
     // bitmap value, we remove the secondary effects from the effect tag and
     // switch on that value.
-    // 主效应标签
+    // effect
     let primaryEffectTag =
       effectTag & (Placement | Update | Deletion | Hydrating);
     switch (primaryEffectTag) {

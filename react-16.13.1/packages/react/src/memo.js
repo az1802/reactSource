@@ -9,6 +9,11 @@ import {REACT_MEMO_TYPE} from 'shared/ReactSymbols';
 
 import isValidElementType from 'shared/isValidElementType';
 
+/**
+ * 生成浅拷贝的函数组件
+ * @param {*} type 
+ * @param {*} compare 
+ */
 export default function memo<Props>(
   type: React$ElementType,
   compare?: (oldProps: Props, newProps: Props) => boolean,
